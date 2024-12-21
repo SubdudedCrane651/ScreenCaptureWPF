@@ -6,7 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>desktop.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="desktop.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AForge.Video.FFMPEG" Version="2.2.5.1-rc" />
