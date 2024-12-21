@@ -1,10 +1,15 @@
 ﻿<Window x:Class="ScreenCaptureWPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Screen Capture" Height="200" Width="300">
+        Title="Screen Capture" Height="300" Width="300">
     <Grid>
         <Button Name="StartButton" Content="Start Recording" Click="StartButton_Click" HorizontalAlignment="Left" Margin="30,50,0,0" VerticalAlignment="Top" Width="100"/>
         <Button Name="StopButton" Content="Stop Recording" Click="StopButton_Click" HorizontalAlignment="Right" Margin="0,50,30,0" VerticalAlignment="Top" Width="100"/>
         <Label Name="RecordingLabel" Content="Not Recording" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"/>
+        <ComboBox Name="SpeedComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0" Width="150">
+            <ComboBoxItem Content="Fast (30 fps)" Tag="30" />
+            <ComboBoxItem Content="Normal (15 fps)" Tag="15" />
+            <ComboBoxItem Content="Slow (10 fps)" Tag="10" />
+        </ComboBox>
     </Grid>
 </Window>

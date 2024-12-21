@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using NReco.VideoConverter;
 
@@ -14,11 +15,13 @@ namespace ScreenCaptureWPF
         private bool isRecording = false;
         private DispatcherTimer labelTimer;
         private int dotCount = 0;
+        private int frameRate;
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeLabelTimer();
+            SpeedComboBox.SelectedIndex = 1; // Set default to Normal (15 fps)
         }
 
         private void InitializeLabelTimer()
@@ -36,6 +39,12 @@ namespace ScreenCaptureWPF
 
         private void StartRecording()
         {
+            // Get selected frame rate from ComboBox
+            Dispatcher.Invoke(() => {
+                ComboBoxItem selectedSpeedItem = (ComboBoxItem)SpeedComboBox.SelectedItem;
+                frameRate = int.Parse(selectedSpeedItem.Tag.ToString());
+            });
+
             isRecording = true;
             recordingThread = new Thread(RecordScreen);
             recordingThread.Start();
@@ -56,7 +65,6 @@ namespace ScreenCaptureWPF
             var screenBounds = GetScreenBounds();
             int width = screenBounds.Width;
             int height = screenBounds.Height;
-            int frameRate = 10;
 
             string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(baseDirectory, "desktop_capture.mp4");
