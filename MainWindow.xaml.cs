@@ -184,19 +184,7 @@ namespace ScreenCaptureWPF
                     Console.WriteLine("Deleted existing final_output.mp4 file");
                 }
 
-                string syncMode = Dispatcher.Invoke(() => {
-                    ComboBoxItem selectedSyncModeItem = (ComboBoxItem)SyncModeComboBox.SelectedItem;
-                    return selectedSyncModeItem.Tag.ToString();
-                });
-
-                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -c:v copy -c:a aac -strict experimental ";
-
-                if (syncMode == "strict")
-                {
-                    ffmpegArgs += "-async 1 "; // Strict synchronization
-                }
-
-                ffmpegArgs += $"\"{finalOutputPath}\"";
+                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -filter:v \"setpts=2.0*PTS\" -c:a aac -strict experimental \"{finalOutputPath}\"";
 
                 // Log FFmpeg arguments
                 Console.WriteLine("FFmpeg arguments: " + ffmpegArgs);
@@ -211,36 +199,61 @@ namespace ScreenCaptureWPF
                     CreateNoWindow = true
                 };
 
-                var process = new Process
+                try
                 {
-                    StartInfo = processStartInfo,
-                    EnableRaisingEvents = true
-                };
+                    var process = new Process
+                    {
+                        StartInfo = processStartInfo,
+                        EnableRaisingEvents = true
+                    };
 
-                process.OutputDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.Exited += (sender, args) => {
-                    Console.WriteLine("FFmpeg process exited with code " + process.ExitCode);
-                    process.Dispose();
-                };
+                    process.OutputDataReceived += (sender, args) =>
+                    {
+                        if (!string.IsNullOrEmpty(args.Data))
+                        {
+                            Console.WriteLine("FFmpeg Output: " + args.Data);
+                        }
+                    };
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
+                    process.ErrorDataReceived += (sender, args) =>
+                    {
+                        if (!string.IsNullOrEmpty(args.Data))
+                        {
+                            Console.WriteLine("FFmpeg Error: " + args.Data);
+                        }
+                    };
 
-                await Task.Run(() => process.WaitForExit());
+                    process.Exited += (sender, args) =>
+                    {
+                        Console.WriteLine("FFmpeg process exited with code " + process.ExitCode);
+                        process.Dispose();
+                    };
 
-                Console.WriteLine("Audio and video combined successfully");
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
-                // Show message box and play beep sound
-                SystemSounds.Beep.Play();
-                MessageBox.Show("Audio and video combination complete!", "Process Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await Task.Run(() => process.WaitForExit());
+
+                    Console.WriteLine("Audio and video combined successfully");
+
+                    // Show message box and play beep sound
+                    SystemSounds.Beep.Play();
+                    MessageBox.Show("Audio and video combination complete!", "Process Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error starting FFmpeg process: " + ex.Message);
+                }
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error combining audio and video: " + ex.Message);
             }
         }
+
+
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {

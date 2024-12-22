@@ -16,6 +16,7 @@
         <ComboBox Name="SyncModeComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,150,0,0" Width="150">
             <ComboBoxItem Content="Strict Sync" Tag="strict" />
             <ComboBoxItem Content="Relaxed Sync" Tag="relaxed" />
+            <ComboBoxItem Content="Slow Down Video" Tag="slowdown" />
         </ComboBox>
     </Grid>
 </Window>
