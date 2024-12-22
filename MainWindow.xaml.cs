@@ -48,11 +48,14 @@ namespace ScreenCaptureWPF
 
         private void StartRecording()
         {
-            // Get selected frame rate from ComboBox
+            // Get selected frame rate and sync mode from ComboBoxes
             Dispatcher.Invoke(() =>
             {
                 ComboBoxItem selectedSpeedItem = (ComboBoxItem)SpeedComboBox.SelectedItem;
                 frameRate = int.Parse(selectedSpeedItem.Tag.ToString());
+
+                ComboBoxItem selectedSyncModeItem = (ComboBoxItem)SyncModeComboBox.SelectedItem;
+                string syncMode = selectedSyncModeItem.Tag.ToString();
             });
 
             // Initialize audio recording using WASAPI Loopback
@@ -170,7 +173,20 @@ namespace ScreenCaptureWPF
                     Console.WriteLine("Deleted existing final_output.mp4 file");
                 }
 
-                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -c:v copy -c:a aac -strict experimental \"{finalOutputPath}\"";
+                string syncMode = Dispatcher.Invoke(() =>
+                {
+                    ComboBoxItem selectedSyncModeItem = (ComboBoxItem)SyncModeComboBox.SelectedItem;
+                    return selectedSyncModeItem.Tag.ToString();
+                });
+
+                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -c:v copy -c:a aac -strict experimental ";
+
+                if (syncMode == "strict")
+                {
+                    ffmpegArgs += "-async 1 "; // Strict synchronization
+                }
+
+                ffmpegArgs += $"\"{finalOutputPath}\"";
 
                 // Log FFmpeg arguments
                 Console.WriteLine("FFmpeg arguments: " + ffmpegArgs);
@@ -216,7 +232,6 @@ namespace ScreenCaptureWPF
                 Console.WriteLine("Error combining audio and video: " + ex.Message);
             }
         }
-
 
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
