@@ -7,9 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using NHotkey;
+using NHotkey.Wpf;
 using NReco.VideoConverter;
 
 namespace ScreenCaptureWPF
@@ -31,6 +34,10 @@ namespace ScreenCaptureWPF
             InitializeComponent();
             InitializeLabelTimer();
             SpeedComboBox.SelectedIndex = 1; // Set default to Normal (15 fps)
+            SyncModeComboBox.SelectedIndex = 0; // Set default to Strict Sync
+
+            // Register the global hotkey (Ctrl+Shift+S to stop recording)
+            HotkeyManager.Current.AddOrReplace("StopRecording", Key.S, ModifierKeys.Control | ModifierKeys.Shift, OnStopRecordingHotkey);
         }
 
         private void InitializeLabelTimer()
@@ -49,8 +56,7 @@ namespace ScreenCaptureWPF
         private void StartRecording()
         {
             // Get selected frame rate and sync mode from ComboBoxes
-            Dispatcher.Invoke(() =>
-            {
+            Dispatcher.Invoke(() => {
                 ComboBoxItem selectedSpeedItem = (ComboBoxItem)SpeedComboBox.SelectedItem;
                 frameRate = int.Parse(selectedSpeedItem.Tag.ToString());
 
@@ -73,7 +79,6 @@ namespace ScreenCaptureWPF
             RecordingLabel.Content = "Recording";
             labelTimer.Start();
         }
-
 
         private void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
         {
@@ -112,6 +117,12 @@ namespace ScreenCaptureWPF
 
             RecordingLabel.Content = "Not Recording";
             labelTimer.Stop();
+        }
+
+        private void OnStopRecordingHotkey(object sender, HotkeyEventArgs e)
+        {
+            StopRecording();
+            e.Handled = true;
         }
 
         private void RecordScreen()
@@ -173,8 +184,7 @@ namespace ScreenCaptureWPF
                     Console.WriteLine("Deleted existing final_output.mp4 file");
                 }
 
-                string syncMode = Dispatcher.Invoke(() =>
-                {
+                string syncMode = Dispatcher.Invoke(() => {
                     ComboBoxItem selectedSyncModeItem = (ComboBoxItem)SyncModeComboBox.SelectedItem;
                     return selectedSyncModeItem.Tag.ToString();
                 });
@@ -209,8 +219,7 @@ namespace ScreenCaptureWPF
 
                 process.OutputDataReceived += (sender, args) => Console.WriteLine(args.Data);
                 process.ErrorDataReceived += (sender, args) => Console.WriteLine(args.Data);
-                process.Exited += (sender, args) =>
-                {
+                process.Exited += (sender, args) => {
                     Console.WriteLine("FFmpeg process exited with code " + process.ExitCode);
                     process.Dispose();
                 };
@@ -232,7 +241,6 @@ namespace ScreenCaptureWPF
                 Console.WriteLine("Error combining audio and video: " + ex.Message);
             }
         }
-
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
