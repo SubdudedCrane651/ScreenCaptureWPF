@@ -8,7 +8,8 @@
         <Label Name="RecordingLabel" Content="Not Recording" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0"/>
 
         <ComboBox Name="SpeedComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,100,0,0" Width="150">
-            <ComboBoxItem Content="Fast (30 fps)" Tag="30" />
+            <ComboBoxItem Content="Faster (30 fps)" Tag="30" />
+            <ComboBoxItem Content="Fast (24 fps)" Tag="24" />
             <ComboBoxItem Content="Normal (15 fps)" Tag="15" />
             <ComboBoxItem Content="Slow (10 fps)" Tag="10" />
         </ComboBox>
