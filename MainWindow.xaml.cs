@@ -33,11 +33,13 @@ namespace ScreenCaptureWPF
         {
             InitializeComponent();
             InitializeLabelTimer();
-            SpeedComboBox.SelectedIndex = 1; // Set default to Normal (15 fps)
-            SyncModeComboBox.SelectedIndex = 0; // Set default to Strict Sync
+            SpeedComboBox.SelectedIndex = 0; // Set default to Normal (30 fps)
+            SyncModeComboBox.SelectedIndex = 2; // Set default to Slow Video
+            SlowdownComboBox.SelectedIndex = 2; //Set to 40%
 
             // Register the global hotkey (Ctrl+Shift+S to stop recording)
             HotkeyManager.Current.AddOrReplace("StopRecording", Key.S, ModifierKeys.Control | ModifierKeys.Shift, OnStopRecordingHotkey);
+            HotkeyManager.Current.AddOrReplace("StartRecording", Key.R, ModifierKeys.Control | ModifierKeys.Shift, OnStartRecordingHotkey);
         }
 
         private void InitializeLabelTimer()
@@ -184,7 +186,12 @@ namespace ScreenCaptureWPF
                     Console.WriteLine("Deleted existing final_output.mp4 file");
                 }
 
-                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -filter:v \"setpts=4.795*PTS\" -r {frameRate} -c:a aac -strict experimental \"{finalOutputPath}\"";
+                string syncMode = Dispatcher.Invoke(() => { ComboBoxItem selectedSyncModeItem = (ComboBoxItem)SyncModeComboBox.SelectedItem;
+                    return selectedSyncModeItem.Tag.ToString(); }); 
+                double slowdownFactor = Dispatcher.Invoke(() => { ComboBoxItem selectedSlowdownItem = (ComboBoxItem)SlowdownComboBox.SelectedItem;
+                    return double.Parse(selectedSlowdownItem.Tag.ToString()); });
+
+                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -filter:v \"setpts={slowdownFactor}*PTS\" -r {frameRate} -c:a aac -strict experimental -async 1 \"{finalOutputPath}\"";
 
                 // Log FFmpeg arguments
                 Console.WriteLine("FFmpeg arguments: " + ffmpegArgs);
@@ -253,6 +260,11 @@ namespace ScreenCaptureWPF
             }
         }
 
+        private void OnStartRecordingHotkey(object sender, HotkeyEventArgs e)
+        {
+            StartRecording();
+            e.Handled = true;
+        }
 
 
         private void StartButton_Click(object sender, RoutedEventArgs e)

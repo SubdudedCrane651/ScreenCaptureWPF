@@ -20,5 +20,14 @@
             <ComboBoxItem Content="Relaxed Sync" Tag="relaxed" />
             <ComboBoxItem Content="Slow Down Video" Tag="slowdown" />
         </ComboBox>
+
+        <ComboBox x:Name="SlowdownComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,200,0,0" Width="150">
+            <ComboBoxItem Content="50%" Tag="2.0" />
+            <ComboBoxItem Content="25%" Tag="4.0" />
+            <ComboBoxItem Content="40%" Tag="2.5" />
+            <ComboBoxItem Content="33%" Tag="3.0" />
+            <ComboBoxItem Content="75%" Tag="1.33" />
+        </ComboBox>
+
     </Grid>
 </Window>
