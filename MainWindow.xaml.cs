@@ -184,7 +184,7 @@ namespace ScreenCaptureWPF
                     Console.WriteLine("Deleted existing final_output.mp4 file");
                 }
 
-                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -filter:v \"setpts=2.0*PTS\" -r {frameRate} -c:a aac -strict experimental \"{finalOutputPath}\"";
+                string ffmpegArgs = $"-i \"{videoFilePath}\" -i \"{audioFilePath}\" -filter:v \"setpts=4.795*PTS\" -r {frameRate} -c:a aac -strict experimental \"{finalOutputPath}\"";
 
                 // Log FFmpeg arguments
                 Console.WriteLine("FFmpeg arguments: " + ffmpegArgs);
